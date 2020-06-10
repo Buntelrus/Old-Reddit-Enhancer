@@ -1,0 +1,27 @@
+name: Deploy Gist
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-master-to-gist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - run: npm ci
+      - run: npm run build
+      - run: cat dist/main.bundle.min.user.js
+      - name: Sync Gist
+        uses: Buntelrus/gist-sync-action@sync-with-git
+        with:
+          auth_token: ${{ secrets.GIST_TOKEN }}
+          auth_user: Buntelrus
+          auth_email: julianbantel@gmail.com
+          gist_url: https://gist.github.com/Buntelrus/6914a08285e215fdd9c2530661d9d81c
+          file: dist/main.bundle.min.user.js
+          history: false
