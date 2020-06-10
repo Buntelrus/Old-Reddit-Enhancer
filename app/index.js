@@ -1,13 +1,20 @@
-import './scss/message.scss'
-import Toast from './html/toast.html'
-function showToast() {
-  document.body.insertAdjacentHTML('beforeend', Toast)
-  const toast = document.body.children.item(document.body.children.length - 1)
-  toast.classList.add('show')
-  toast.addEventListener('click', function () {
-    this.classList.remove('show')
-  })
-}
+import './scss/threadline.scss'
+import selectors from './selectors'
 
-console.log('Hello World!')
-showToast()
+const comments = Array.from(document.querySelectorAll(selectors.comment))
+comments.forEach(comment => {
+  const threadLine = document.createElement('div')
+  threadLine.classList.add('threadline')
+  threadLine.addEventListener('click', function () {
+    const comment = this.parentElement
+    const collapsed = comment.classList.toggle('collapsed')
+    if (collapsed) {
+      comment.classList.remove('noncollapsed')
+      comment.querySelector(selectors.expand).innerText = '[+]'
+    } else {
+      comment.classList.add('noncollapsed')
+      comment.querySelector(selectors.expand).innerText = '[-]'
+    }
+  })
+  comment.append(threadLine)
+})

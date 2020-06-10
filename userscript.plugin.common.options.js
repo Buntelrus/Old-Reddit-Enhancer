@@ -1,9 +1,9 @@
 module.exports = {
   metajs: false,
   headers: {
-    name: 'My Userscript Name',
+    name: 'Old Reddit Enhancer',
     version: '[version]-build.[buildNo]',
-    match: 'https://buntel.de',
-    description: 'My userscript description',
+    match: 'https://old.reddit.com/r/*/comments/*', 
+    description: 'hide comments.',
   },
 }

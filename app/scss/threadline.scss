@@ -1,0 +1,26 @@
+$threadline: 1px dotted #727272;
+$threadline-active: 4px solid #2168c4;
+
+.comment {
+  position: relative;
+  //don't hide sidebar!
+  overflow: hidden;
+
+  //hide old thread line
+  .child {
+    border-left: none;
+  }
+}
+
+.threadline {
+  position: absolute;
+  top: 0;
+  height: calc(100% - 1.4em);
+  margin-top: 1.4em;
+
+  border-left: $threadline;
+
+  &:hover {
+    border-left: $threadline-active;
+  }
+}
