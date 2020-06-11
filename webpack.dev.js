@@ -17,6 +17,9 @@ module.exports = merge(common, {
   plugins: [
     new WebpackUserscript(merge(userscriptOptions, {
       pretty: true,
+      headers: {
+        version: '[version]-build.[buildNo]',
+      }
     }))
   ]
 });
