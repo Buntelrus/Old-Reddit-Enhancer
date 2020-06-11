@@ -19,6 +19,7 @@ $threadline-active: 4px solid #2168c4;
   margin-top: 1.4em;
 
   border-left: $threadline;
+  cursor: pointer;
 
   &:hover {
     border-left: $threadline-active;
