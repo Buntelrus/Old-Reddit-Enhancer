@@ -1,5 +1,6 @@
 $threadline: 1px dotted #727272;
 $threadline-active: 4px solid #2168c4;
+$threadline-hover-padding: 4px;
 
 .comment {
   position: relative;
@@ -15,13 +16,21 @@ $threadline-active: 4px solid #2168c4;
 .threadline {
   position: absolute;
   top: 0;
-  height: calc(100% - 1.4em);
-  margin-top: 1.4em;
+  height: 100%;
+  margin-top: 3.4em;
 
-  border-left: $threadline;
-  cursor: pointer;
+  //background-color: rgba(255,101,89,0.33);
+  padding: $threadline-hover-padding;
 
+  div {
+    height: 100%;
+    margin-top: -$threadline-hover-padding;
+    border-left: $threadline;
+  }
   &:hover {
-    border-left: $threadline-active;
+    cursor: pointer;
+    div {
+      border-left: $threadline-active;
+    }
   }
 }

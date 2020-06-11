@@ -4,6 +4,7 @@ import selectors from './selectors'
 const comments = Array.from(document.querySelectorAll(selectors.comment))
 comments.forEach(comment => {
   const threadLine = document.createElement('div')
+  threadLine.append(document.createElement('div'))
   threadLine.classList.add('threadline')
   threadLine.addEventListener('click', function () {
     const comment = this.parentElement
