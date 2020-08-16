@@ -1,5 +1,8 @@
 import './scss/threadline.scss'
 import selectors from './selectors'
+import TimeTracker from './TimeTracker'
+
+window.TimeTracker = new TimeTracker()
 
 const comments = Array.from(document.querySelectorAll(selectors.comment))
 comments.forEach(comment => {

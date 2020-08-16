@@ -1,0 +1,109 @@
+import { openDB } from 'idb'
+const LOCAL_STORAGE_SESSION_KEY = 'lastRedditSession'
+const SECONDS_TO_START_NEW_SESSION = 30
+function db() {
+  return openDB('reddit-usage', 1, {
+    upgrade(db, oldVersion, newVersion, transaction) {
+      if (!db.objectStoreNames.contains('sessions')) {
+        const store = db.createObjectStore('sessions', {
+          keyPath: 'nr',
+          autoIncrement: true
+        })
+        store.createIndex('start', 'start', {
+          unique: false
+        })
+        store.createIndex('end', 'end', {
+          unique: false
+        })
+      }
+    }
+  })
+}
+
+export default class TimeTracker {
+  get currentTime() {
+    console.log(this.session)
+    if (this.session.end) {
+      return this.currentSessionTime - (this.session.end - this.session.start)
+    } else {
+      return this.currentSessionTime
+    }
+  }
+  get currentSessionTime() {
+    return new Date() - this.session.start
+  }
+  get accumulatedDayTime() {
+    return new Promise(resolve => {
+      const oneDayAgo = new Date().setHours(-24)
+      this.db.getAllFromIndex('sessions', 'end', IDBKeyRange.lowerBound(oneDayAgo))
+        .then(sessions => {
+          // console.log(sessions)
+          const accumulatedTime = sessions.reduce((time, session) => {
+            let startTime
+            if (session.start < oneDayAgo) {
+              startTime = oneDayAgo
+            } else {
+              startTime = session.start
+            }
+            return time + session.end.getTime() - startTime.getTime()
+          }, 0)
+          resolve(accumulatedTime)
+        })
+    })
+  }
+  constructor() {
+    const time = new Date()
+    this.session = TimeTracker.getSessionFromLocalStorage()
+    window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
+    console.log('localSession:', this.session)
+    db().then(async db => {
+      this.db = db
+      // get last session
+      // const lastSession = await db.transaction('sessions')
+      //         .store.openCursor(null, 'prev').then(cursor => cursor? cursor.value: cursor)
+      if (!this.session || new Date() - this.session.end > SECONDS_TO_START_NEW_SESSION * 1000) {
+        console.log('start new session')
+        if (this.session) {
+          //save old session
+          db.put('sessions', this.session).then(() => {
+            console.log('session saved:', this.session)
+          })
+        }
+        this.session = TimeTracker.createNewSession(time)
+        //save session and retrieve session.nr
+        db.put('sessions', this.session).then(nr => {
+          console.log('nr', nr)
+          this.session.nr = nr
+        })
+      } else {
+        console.log('continue session')
+        //update current session
+        db.put('sessions', this.session).then(() => {
+          console.log('session updated:', this.session)
+        })
+      }
+    })
+  }
+  static getSessionFromLocalStorage() {
+    const session = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SESSION_KEY))
+    if (session) {
+      session.start = session.start? new Date(session.start): null
+      session.end = session.end? new Date(session.end): null
+    }
+    return session
+  }
+  static createNewSession(time) {
+    return {
+      start: time,
+      end: null
+    }
+  }
+  /**
+   * This will save the current session in local storage. We do this because
+   * this is a synchronous operation an can be securely done if browser window closes.
+   */
+  saveSessionToLocalStorage() {
+    this.session.end = new Date()
+    localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(this.session))
+  }
+}
