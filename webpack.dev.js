@@ -14,12 +14,5 @@ module.exports = merge(common, {
     contentBase: path.join(__dirname, 'dist'),
     disableHostCheck: true
   },
-  plugins: [
-    new WebpackUserscript(merge(userscriptOptions, {
-      pretty: true,
-      headers: {
-        version: '[version]-build.[buildNo]',
-      }
-    }))
-  ]
+  plugins: []
 });
