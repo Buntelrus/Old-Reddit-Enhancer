@@ -3,6 +3,6 @@ export default function(config, changelog) {
     console.log(`update to verion: ${VERSION}`)
     changelog.show()
     config.version = VERSION
-    // config.save()
+    config.save()
   }
 }
