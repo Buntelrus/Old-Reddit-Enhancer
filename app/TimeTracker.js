@@ -1,6 +1,5 @@
 import { openDB } from 'idb'
 const LOCAL_STORAGE_SESSION_KEY = 'lastRedditSession'
-const SECONDS_TO_START_NEW_SESSION = 30
 function db() {
   return openDB('reddit-usage', 1, {
     upgrade(db, oldVersion, newVersion, transaction) {
@@ -34,10 +33,12 @@ export default class TimeTracker {
   }
   get accumulatedDayTime() {
     return new Promise(resolve => {
-      const oneDayAgo = new Date().setHours(-24)
-      this.db.getAllFromIndex('sessions', 'end', IDBKeyRange.lowerBound(oneDayAgo))
-        .then(sessions => {
-          // console.log(sessions)
+      const oneDayAgo = new Date()
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+      this.db.then(db => {
+        db.getAllFromIndex('sessions', 'end',
+          IDBKeyRange.lowerBound(oneDayAgo)).then(sessions => {
+          console.log(sessions)
           const accumulatedTime = sessions.reduce((time, session) => {
             let startTime
             if (session.start < oneDayAgo) {
@@ -47,21 +48,24 @@ export default class TimeTracker {
             }
             return time + session.end.getTime() - startTime.getTime()
           }, 0)
+          console.log(accumulatedTime, accumulatedTime / 1000 / 60)
           resolve(accumulatedTime)
         })
+      })
     })
   }
-  constructor() {
+  constructor(config) {
     const time = new Date()
+    this.CONFIG = config
     this.session = TimeTracker.getSessionFromLocalStorage()
     window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
     console.log('localSession:', this.session)
-    db().then(async db => {
-      this.db = db
+    this.db = db()
+    this.db.then(async db => {
       // get last session
       // const lastSession = await db.transaction('sessions')
       //         .store.openCursor(null, 'prev').then(cursor => cursor? cursor.value: cursor)
-      if (!this.session || new Date() - this.session.end > SECONDS_TO_START_NEW_SESSION * 1000) {
+      if (!this.session || new Date() - this.session.end > this.CONFIG.secondsToStartNewSession * 1000) {
         console.log('start new session')
         if (this.session) {
           //save old session
@@ -105,5 +109,10 @@ export default class TimeTracker {
   saveSessionToLocalStorage() {
     this.session.end = new Date()
     localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(this.session))
+  }
+  dailyRedditTimeExhausted() {
+    return this.accumulatedDayTime.then(time => {
+      return Boolean(time / 1000 / 60 > this.CONFIG.dailyRedditTime)
+    })
   }
 }

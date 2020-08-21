@@ -1,0 +1,6 @@
+@mixin show() {
+  display: none;
+  &.show{
+    display: inherit;
+  }
+}

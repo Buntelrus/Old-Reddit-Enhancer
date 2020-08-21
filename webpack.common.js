@@ -1,5 +1,5 @@
-const path = require("path")
-// const WebpackUserscript = require('webpack-userscript')
+const webpack = require('webpack')
+const package = require('./package.json')
 const dev = process.env.NODE_ENV === 'development'
 
 module.exports = {
@@ -24,5 +24,10 @@ module.exports = {
         loader: 'html-loader'
       }
     }]
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(package.version)
+    })
+  ]
 }
