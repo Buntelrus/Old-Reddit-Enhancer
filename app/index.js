@@ -30,6 +30,15 @@ modules.forEach(module => {
   })
 })
 
+const moduleLinks = Array.from(container.querySelectorAll('a[data-module]'))
+moduleLinks.forEach(link => {
+  link.addEventListener('click', event => {
+    event.preventDefault()
+    const moduleIndex = parseInt(event.currentTarget.dataset.module)
+    modules[moduleIndex].show()
+  })
+})
+
 update(config, modules[0])
 
 const timeTracker = window.TimeTracker = new TimeTracker(config)
