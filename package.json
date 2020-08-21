@@ -31,5 +31,7 @@
     "webpack-merge": "^4.2.2",
     "webpack-userscript": "^2.5.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "idb": "^5.0.4"
+  }
 }
