@@ -21,7 +21,7 @@ function db() {
 
 export default class TimeTracker {
   get currentTime() {
-    console.log(this.session)
+    // console.log(this.session)
     if (this.session.end) {
       return this.currentSessionTime - (this.session.end - this.session.start)
     } else {
@@ -38,17 +38,21 @@ export default class TimeTracker {
       this.db.then(db => {
         db.getAllFromIndex('sessions', 'end',
           IDBKeyRange.lowerBound(oneDayAgo)).then(sessions => {
-          console.log(sessions)
-          const accumulatedTime = sessions.reduce((time, session) => {
-            let startTime
-            if (session.start < oneDayAgo) {
-              startTime = oneDayAgo
+          const accumulatedTime = sessions.reduce((time, session, i) => {
+            let timeSpent
+            if (i === sessions.length - 1) {
+              timeSpent = this.currentSessionTime
             } else {
-              startTime = session.start
+              let startTime
+              if (session.start < oneDayAgo) {
+                startTime = oneDayAgo
+              } else {
+                startTime = session.start
+              }
+              timeSpent = session.end.getTime() - startTime.getTime()
             }
-            return time + session.end.getTime() - startTime.getTime()
+            return time + timeSpent
           }, 0)
-          console.log(accumulatedTime, accumulatedTime / 1000 / 60)
           resolve(accumulatedTime)
         })
       })
@@ -59,31 +63,30 @@ export default class TimeTracker {
     this.CONFIG = config
     this.session = TimeTracker.getSessionFromLocalStorage()
     window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
-    console.log('localSession:', this.session)
+    // console.log('localSession:', this.session)
     this.db = db()
     this.db.then(async db => {
       // get last session
       // const lastSession = await db.transaction('sessions')
       //         .store.openCursor(null, 'prev').then(cursor => cursor? cursor.value: cursor)
       if (!this.session || new Date() - this.session.end > this.CONFIG.secondsToStartNewSession * 1000) {
-        console.log('start new session')
+        // console.log('start new session')
         if (this.session) {
           //save old session
           db.put('sessions', this.session).then(() => {
-            console.log('session saved:', this.session)
+            // console.log('session saved:', this.session)
           })
         }
         this.session = TimeTracker.createNewSession(time)
         //save session and retrieve session.nr
         db.put('sessions', this.session).then(nr => {
-          console.log('nr', nr)
           this.session.nr = nr
         })
       } else {
-        console.log('continue session')
+        // console.log('continue session')
         //update current session
         db.put('sessions', this.session).then(() => {
-          console.log('session updated:', this.session)
+          // console.log('session updated:', this.session)
         })
       }
     })
@@ -91,15 +94,15 @@ export default class TimeTracker {
   static getSessionFromLocalStorage() {
     const session = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SESSION_KEY))
     if (session) {
-      session.start = session.start? new Date(session.start): null
-      session.end = session.end? new Date(session.end): null
+      session.start = session.start? new Date(session.start): new Date()
+      session.end = session.end? new Date(session.end): new Date()
     }
     return session
   }
   static createNewSession(time) {
     return {
       start: time,
-      end: null
+      end: new Date()
     }
   }
   /**
