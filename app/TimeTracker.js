@@ -53,35 +53,16 @@ export default class TimeTracker {
   constructor(config) {
     const time = new Date()
     this.CONFIG = config
-    this.session = TimeTracker.getSessionFromLocalStorage()
-    window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
-    // console.log('localSession:', this.session)
     this.db = db()
-    this.db.then(async db => {
-      // get last session
-      // const lastSession = await db.transaction('sessions')
-      //         .store.openCursor(null, 'prev').then(cursor => cursor? cursor.value: cursor)
-      if (!this.session || new Date() - this.session.end > this.CONFIG.secondsToStartNewSession * 1000) {
-        // console.log('start new session')
-        if (this.session) {
-          //save old session
-          db.put('sessions', this.session).then(() => {
-            // console.log('session saved:', this.session)
-          })
-        }
-        this.session = TimeTracker.createNewSession(time)
-        //save session and retrieve session.nr
-        db.put('sessions', this.session).then(nr => {
-          this.session.nr = nr
-        })
-      } else {
-        // console.log('continue session')
-        //update current session
-        db.put('sessions', this.session).then(() => {
-          // console.log('session updated:', this.session)
-        })
-      }
+    this.session = TimeTracker.getSessionFromLocalStorage()
+    this.saveSession()
+    window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
+    window.addEventListener('focus', () => this.track(new Date()))
+    window.addEventListener('blur', () => {
+      this.session.end = new Date()
+      this.saveSession()
     })
+    this.track(time)
   }
   static getSessionFromLocalStorage() {
     const session = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SESSION_KEY))
@@ -117,6 +98,23 @@ export default class TimeTracker {
           }, dailyRedditTimeSec - time)
         })
       }
+    })
+  }
+  track(time) {
+    if (!this.session || new Date() - this.session.end > this.CONFIG.secondsToStartNewSession * 1000) {
+      // console.log('start new session')
+      this.session = TimeTracker.createNewSession(time)
+      this.saveSession()
+    // } else {
+    //   console.log('continue session')
+    }
+  }
+  saveSession(session = this.session) {
+    return this.db.then(db => {
+      return db.put('sessions', session).then(nr => {
+        this.session.nr = nr
+        // console.log('session saved:', this.session)
+      })
     })
   }
   showHistory(historyList) {
