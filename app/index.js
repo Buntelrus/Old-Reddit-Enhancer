@@ -5,7 +5,7 @@ import TimeTracker from './TimeTracker'
 import update from './functions/update'
 import Container from './html/container.html'
 
-
+//insert container html
 document.body.insertAdjacentHTML('afterbegin', Container)
 const container = document.body.children[0]
 const modules = Array.from(document.querySelector('.ore-container').children)
@@ -30,6 +30,7 @@ modules.forEach(module => {
   })
 })
 
+//open proper modules
 const moduleLinks = Array.from(container.querySelectorAll('a[data-module]'))
 moduleLinks.forEach(link => {
   link.addEventListener('click', event => {
@@ -42,11 +43,9 @@ moduleLinks.forEach(link => {
 update(config, modules[0])
 
 const timeTracker = window.TimeTracker = new TimeTracker(config)
-timeTracker.accumulatedDayTime.then(time => {
+timeTracker.dailyRedditTimeExhausted().then(time => {
   const minutesSpentOnReddit = time / 1000 / 60
-  if (minutesSpentOnReddit > config.dailyRedditTime) {
-    alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
-  }
+  alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
 })
 
 document.addEventListener('keydown', event => {

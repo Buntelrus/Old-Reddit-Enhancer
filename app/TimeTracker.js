@@ -115,7 +115,16 @@ export default class TimeTracker {
   }
   dailyRedditTimeExhausted() {
     return this.accumulatedDayTime.then(time => {
-      return Boolean(time / 1000 / 60 > this.CONFIG.dailyRedditTime)
+      if (time / 1000 / 60 > this.CONFIG.dailyRedditTime) {
+        return time
+      } else {
+        return new Promise(resolve => {
+          const dailyRedditTimeSec = this.CONFIG.dailyRedditTime * 1000 * 60
+          setTimeout(() => {
+            resolve(dailyRedditTimeSec)
+          }, dailyRedditTimeSec - time)
+        })
+      }
     })
   }
 }
