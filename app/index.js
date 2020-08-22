@@ -43,10 +43,12 @@ moduleLinks.forEach(link => {
 update(config, modules[0])
 
 const timeTracker = window.TimeTracker = new TimeTracker(config)
-timeTracker.dailyRedditTimeExhausted().then(time => {
-  const minutesSpentOnReddit = time / 1000 / 60
-  alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
-})
+if (config.showTimeAlert) {
+  timeTracker.dailyRedditTimeExhausted().then(time => {
+    const minutesSpentOnReddit = time / 1000 / 60
+    alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
+  })
+}
 
 document.addEventListener('keydown', event => {
   if (event.key === 't' && event.ctrlKey && event.altKey) {
@@ -74,13 +76,21 @@ const camalize = string => {
   .join('')
 }
 inputs.forEach(input => {
-  input.value = config[camalize(input.id)]
+  if (input.type === 'checkbox') {
+    input.checked = config[camalize(input.id)]
+  } else {
+    input.value = config[camalize(input.id)]
+  }
 })
 
 form.addEventListener('submit', event => {
   event.preventDefault()
   inputs.forEach(input => {
-    config[camalize(input.id)] = input.value
+    if (input.type === 'checkbox') {
+      config[camalize(input.id)] = input.checked
+    } else {
+      config[camalize(input.id)] = input.value
+    }
   })
   config.save()
   modules[1].show(false) //close config
