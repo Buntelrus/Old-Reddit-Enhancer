@@ -4,6 +4,19 @@
         <h1>Old-Reddit-Enhancer Changelog:</h1>
         <ul>
             <li>
+                <h2>Version: 0.2.1</h2>
+                <ul>
+                    <li>fix: trigger alert immediately if time is exhausted (before: only on site load)</li>
+                    <li>added: link in config to open the changelog</li>
+                    <li>added: option for en/disable time alert <a href="" data-module="1">config</a></li>
+                    <li>added:
+                        <a href="" data-module="2">history</a>
+                        (alt + t)
+                    </li>
+                    <li>added: Close open windows with Esc</li>
+                </ul>
+            </li>
+            <li>
                 <h2>Version: 0.2</h2>
                 <ul>
                     <li>Update dependencies</li>
@@ -31,7 +44,20 @@
                 <input id="daily-reddit-time">
                 <span>min</span>
             </div>
+            <div>
+                <label for="show-time-alert">enable time alert</label>
+                <input id="show-time-alert" type="checkbox">
+            </div>
             <button type="submit">save</button>
         </form>
+        <nav>
+            <a href="" data-module="0">show changelog</a> |
+            <a href="" data-module="2">show history</a>
+        </nav>
+    </div>
+    <div class="history">
+        <span class="close">&times;</span>
+        <h1>History:</h1>
+        <ul class="history-list"></ul>
     </div>
 </div>

@@ -2,7 +2,7 @@ import { openDB } from 'idb'
 const LOCAL_STORAGE_SESSION_KEY = 'lastRedditSession'
 function db() {
   return openDB('reddit-usage', 1, {
-    upgrade(db, oldVersion, newVersion, transaction) {
+    upgrade(db) {
       if (!db.objectStoreNames.contains('sessions')) {
         const store = db.createObjectStore('sessions', {
           keyPath: 'nr',
@@ -20,14 +20,6 @@ function db() {
 }
 
 export default class TimeTracker {
-  get currentTime() {
-    // console.log(this.session)
-    if (this.session.end) {
-      return this.currentSessionTime - (this.session.end - this.session.start)
-    } else {
-      return this.currentSessionTime
-    }
-  }
   get currentSessionTime() {
     return new Date() - this.session.start
   }
@@ -115,7 +107,71 @@ export default class TimeTracker {
   }
   dailyRedditTimeExhausted() {
     return this.accumulatedDayTime.then(time => {
-      return Boolean(time / 1000 / 60 > this.CONFIG.dailyRedditTime)
+      if (time / 1000 / 60 > this.CONFIG.dailyRedditTime) {
+        return time
+      } else {
+        return new Promise(resolve => {
+          const dailyRedditTimeSec = this.CONFIG.dailyRedditTime * 1000 * 60
+          setTimeout(() => {
+            resolve(dailyRedditTimeSec)
+          }, dailyRedditTimeSec - time)
+        })
+      }
+    })
+  }
+  showHistory(historyList) {
+    const locale = 'DE-de'
+    const timeStampToHr = timestamp => {
+      const minutes = Math.round(timestamp / 1000 / 60)
+      const hours = Math.floor(minutes / 60)
+      let timestring = ''
+      if (hours) {
+        timestring += hours.toString() + 'h '
+      }
+      return `${timestring}${minutes % 60}min`
+    }
+    if (historyList.childNodes.length) {
+      historyList.childNodes.forEach(child => child.remove())
+    }
+    this.db.then(db => {
+      db.getAllFromIndex('sessions', 'end').then(sessions => {
+        const sortedByDate = sessions.reduce((object, session) => {
+          const date = new Intl.DateTimeFormat(locale).format(session.start)
+          if (!object[date]) {
+            object[date] = []
+          }
+          object[date].push(session)
+          return object
+        }, {})
+        for (let date in sortedByDate) {
+          const li = document.createElement('li')
+          const h2 = document.createElement('h2')
+          const ul = document.createElement('ul')
+          h2.innerText = date
+          sortedByDate[date].forEach(session => {
+            const li = document.createElement('li')
+            const dateTimeFormat = new Intl.DateTimeFormat(locale, {hour: 'numeric', minute: 'numeric'})
+            const text = [
+              '<span>',
+              dateTimeFormat.format(session.start),
+              'Uhr',
+              '-',
+              dateTimeFormat.format(session.end),
+              'Uhr',
+              '</span>',
+              '<span>',
+              'Duration:',
+              timeStampToHr(session.end - session.start),
+              '</span>'
+            ]
+            li.innerHTML = text.join(' ')
+            ul.append(li)
+          })
+          li.append(h2)
+          li.append(ul)
+          historyList.append(li)
+        }
+      })
     })
   }
 }

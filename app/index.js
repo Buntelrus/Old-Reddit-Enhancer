@@ -5,7 +5,7 @@ import TimeTracker from './TimeTracker'
 import update from './functions/update'
 import Container from './html/container.html'
 
-
+//insert container html
 document.body.insertAdjacentHTML('afterbegin', Container)
 const container = document.body.children[0]
 const modules = Array.from(document.querySelector('.ore-container').children)
@@ -30,6 +30,7 @@ modules.forEach(module => {
   })
 })
 
+//open proper modules
 const moduleLinks = Array.from(container.querySelectorAll('a[data-module]'))
 moduleLinks.forEach(link => {
   link.addEventListener('click', event => {
@@ -42,20 +43,27 @@ moduleLinks.forEach(link => {
 update(config, modules[0])
 
 const timeTracker = window.TimeTracker = new TimeTracker(config)
-timeTracker.accumulatedDayTime.then(time => {
-  const minutesSpentOnReddit = time / 1000 / 60
-  if (minutesSpentOnReddit > config.dailyRedditTime) {
+if (config.showTimeAlert) {
+  timeTracker.dailyRedditTimeExhausted().then(time => {
+    const minutesSpentOnReddit = time / 1000 / 60
     alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
-  }
-})
+  })
+}
 
 document.addEventListener('keydown', event => {
-  if (event.key === 't' && event.ctrlKey && event.altKey) {
-    const config = modules[1]
-    if (config.classList.contains('show')) {
-      config.show(false)
+  let module
+  if (event.code === 'KeyT' && event.ctrlKey && event.altKey) {
+    module = modules[1] //open config
+  } else if (event.code === 'KeyT' && event.altKey) {
+    module = modules[2] //open history
+  } else if (event.code === 'Escape') {
+    modules.forEach(module => module.show(false)) //close all
+  }
+  if (module) {
+    if (module.classList.contains('show')) {
+      module.show(false)
     } else {
-      config.show()
+      module.show()
     }
   }
 })
@@ -75,17 +83,35 @@ const camalize = string => {
   .join('')
 }
 inputs.forEach(input => {
-  input.value = config[camalize(input.id)]
+  if (input.type === 'checkbox') {
+    input.checked = config[camalize(input.id)]
+  } else {
+    input.value = config[camalize(input.id)]
+  }
 })
 
 form.addEventListener('submit', event => {
   event.preventDefault()
   inputs.forEach(input => {
-    config[camalize(input.id)] = input.value
+    if (input.type === 'checkbox') {
+      config[camalize(input.id)] = input.checked
+    } else {
+      config[camalize(input.id)] = input.value
+    }
   })
   config.save()
   modules[1].show(false) //close config
 })
+
+//history
+const history = modules[2]
+const originalShow = history.show
+history.show = show => {
+  if (show !== false) {
+    timeTracker.showHistory(history.querySelector('.history-list'))
+  }
+  originalShow(show)
+}
 
 const comments = Array.from(document.querySelectorAll(selectors.comment))
 comments.forEach(comment => {
