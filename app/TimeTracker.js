@@ -2,7 +2,7 @@ import { openDB } from 'idb'
 const LOCAL_STORAGE_SESSION_KEY = 'lastRedditSession'
 function db() {
   return openDB('reddit-usage', 1, {
-    upgrade(db, oldVersion, newVersion, transaction) {
+    upgrade(db) {
       if (!db.objectStoreNames.contains('sessions')) {
         const store = db.createObjectStore('sessions', {
           keyPath: 'nr',
@@ -20,14 +20,6 @@ function db() {
 }
 
 export default class TimeTracker {
-  get currentTime() {
-    // console.log(this.session)
-    if (this.session.end) {
-      return this.currentSessionTime - (this.session.end - this.session.start)
-    } else {
-      return this.currentSessionTime
-    }
-  }
   get currentSessionTime() {
     return new Date() - this.session.start
   }
