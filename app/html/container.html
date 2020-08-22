@@ -9,6 +9,11 @@
                     <li>fix: trigger alert immediately if time is exhausted (before: only on site load)</li>
                     <li>added: link in config to open the changelog</li>
                     <li>added: option for en/disable time alert <a href="" data-module="1">config</a></li>
+                    <li>added:
+                        <a href="" data-module="2">history</a>
+                        (alt + t)
+                    </li>
+                    <li>added: Close open windows with Esc</li>
                 </ul>
             </li>
             <li>
@@ -45,6 +50,14 @@
             </div>
             <button type="submit">save</button>
         </form>
-        <a href="" data-module="0">show changelog</a>
+        <nav>
+            <a href="" data-module="0">show changelog</a> |
+            <a href="" data-module="2">show history</a>
+        </nav>
+    </div>
+    <div class="history">
+        <span class="close">&times;</span>
+        <h1>History:</h1>
+        <ul class="history-list"></ul>
     </div>
 </div>

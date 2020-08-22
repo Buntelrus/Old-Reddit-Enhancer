@@ -51,12 +51,19 @@ if (config.showTimeAlert) {
 }
 
 document.addEventListener('keydown', event => {
-  if (event.key === 't' && event.ctrlKey && event.altKey) {
-    const config = modules[1]
-    if (config.classList.contains('show')) {
-      config.show(false)
+  let module
+  if (event.code === 'KeyT' && event.ctrlKey && event.altKey) {
+    module = modules[1] //open config
+  } else if (event.code === 'KeyT' && event.altKey) {
+    module = modules[2] //open history
+  } else if (event.code === 'Escape') {
+    modules.forEach(module => module.show(false)) //close all
+  }
+  if (module) {
+    if (module.classList.contains('show')) {
+      module.show(false)
     } else {
-      config.show()
+      module.show()
     }
   }
 })
@@ -95,6 +102,16 @@ form.addEventListener('submit', event => {
   config.save()
   modules[1].show(false) //close config
 })
+
+//history
+const history = modules[2]
+const originalShow = history.show
+history.show = show => {
+  if (show !== false) {
+    timeTracker.showHistory(history.querySelector('.history-list'))
+  }
+  originalShow(show)
+}
 
 const comments = Array.from(document.querySelectorAll(selectors.comment))
 comments.forEach(comment => {

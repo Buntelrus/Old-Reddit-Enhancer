@@ -119,4 +119,59 @@ export default class TimeTracker {
       }
     })
   }
+  showHistory(historyList) {
+    const locale = 'DE-de'
+    const timeStampToHr = timestamp => {
+      const minutes = Math.round(timestamp / 1000 / 60)
+      const hours = Math.floor(minutes / 60)
+      let timestring = ''
+      if (hours) {
+        timestring += hours.toString() + 'h '
+      }
+      return `${timestring}${minutes % 60}min`
+    }
+    if (historyList.childNodes.length) {
+      historyList.childNodes.forEach(child => child.remove())
+    }
+    this.db.then(db => {
+      db.getAllFromIndex('sessions', 'end').then(sessions => {
+        const sortedByDate = sessions.reduce((object, session) => {
+          const date = new Intl.DateTimeFormat(locale).format(session.start)
+          if (!object[date]) {
+            object[date] = []
+          }
+          object[date].push(session)
+          return object
+        }, {})
+        for (let date in sortedByDate) {
+          const li = document.createElement('li')
+          const h2 = document.createElement('h2')
+          const ul = document.createElement('ul')
+          h2.innerText = date
+          sortedByDate[date].forEach(session => {
+            const li = document.createElement('li')
+            const dateTimeFormat = new Intl.DateTimeFormat(locale, {hour: 'numeric', minute: 'numeric'})
+            const text = [
+              '<span>',
+              dateTimeFormat.format(session.start),
+              'Uhr',
+              '-',
+              dateTimeFormat.format(session.end),
+              'Uhr',
+              '</span>',
+              '<span>',
+              'Duration:',
+              timeStampToHr(session.end - session.start),
+              '</span>'
+            ]
+            li.innerHTML = text.join(' ')
+            ul.append(li)
+          })
+          li.append(h2)
+          li.append(ul)
+          historyList.append(li)
+        }
+      })
+    })
+  }
 }

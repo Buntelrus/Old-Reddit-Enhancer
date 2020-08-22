@@ -30,8 +30,7 @@
     cursor: pointer;
   }
 
-  .changelog,
-  .config {
+  > div {
     @include show;
     background-color: $color;
     margin: 2rem auto;
@@ -42,6 +41,15 @@
 
     h2 {
       color: $color-dark;
+    }
+  }
+  .history {
+    .history-list ul > li {
+      display: flex;
+
+      span {
+        margin-right: 1.5rem;
+      }
     }
   }
 }
