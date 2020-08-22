@@ -1,6 +1,6 @@
 {
   "name": "userscript-template",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "privat": true,
   "description": "Your Description",
   "main": "app/index.js",
