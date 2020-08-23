@@ -119,7 +119,7 @@ export default class TimeTracker {
   }
   showHistory(historyList) {
     const locale = 'DE-de'
-    const timeStampToHr = timestamp => {
+    const timestampToHr = timestamp => {
       const minutes = Math.round(timestamp / 1000 / 60)
       const hours = Math.floor(minutes / 60)
       let timestring = ''
@@ -145,10 +145,12 @@ export default class TimeTracker {
           const li = document.createElement('li')
           const h2 = document.createElement('h2')
           const ul = document.createElement('ul')
-          h2.innerText = date
+          let accumulatedDayTime = 0
           sortedByDate[date].forEach(session => {
             const li = document.createElement('li')
             const dateTimeFormat = new Intl.DateTimeFormat(locale, {hour: 'numeric', minute: 'numeric'})
+            const spentTime = session.end - session.start
+            accumulatedDayTime += spentTime
             const text = [
               '<span>',
               dateTimeFormat.format(session.start),
@@ -159,12 +161,13 @@ export default class TimeTracker {
               '</span>',
               '<span>',
               'Duration:',
-              timeStampToHr(session.end - session.start),
+              timestampToHr(spentTime),
               '</span>'
             ]
             li.innerHTML = text.join(' ')
             ul.append(li)
           })
+          h2.innerText = `${date} (${timestampToHr(accumulatedDayTime)})`
           li.append(h2)
           li.append(ul)
           historyList.append(li)
