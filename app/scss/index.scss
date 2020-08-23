@@ -4,6 +4,7 @@
 .ore-container {
   $color: #92a0e0;
   $color-dark: scale-color($color, $lightness: -90%);
+  $container-padding: 1rem;
   $margin: 0.5rem;
 
   @include show;
@@ -35,7 +36,7 @@
     @include show;
     background-color: $color;
     margin: 2rem auto;
-    padding: 1rem;
+    padding: $container-padding;
     border: 1px solid $color-dark;
     width: 80%;
     color: $color-dark;
@@ -53,10 +54,16 @@
     }
   }
   .config {
+    position: relative;
     h1 {
       text-align: center;
     }
-
+    .version {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      margin: $container-padding;
+    }
     form {
       max-width: 600px;
       margin: auto;

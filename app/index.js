@@ -131,3 +131,5 @@ comments.forEach(comment => {
   })
   comment.append(threadLine)
 })
+
+modules[1].show()
