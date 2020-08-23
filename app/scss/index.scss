@@ -4,6 +4,7 @@
 .ore-container {
   $color: #92a0e0;
   $color-dark: scale-color($color, $lightness: -90%);
+  $margin: 0.5rem;
 
   @include show;
   position: fixed;
@@ -41,6 +42,51 @@
 
     h2 {
       color: $color-dark;
+    }
+
+    > ul > li {
+      margin-bottom: $margin;
+
+      > ul {
+        margin-left: $margin;
+      }
+    }
+  }
+  .config {
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 600px;
+      margin: auto;
+
+      > div {
+        display: flex;
+        align-items: baseline;
+
+        * {
+          flex-basis: 100%;
+          margin: $margin;
+        }
+        label::after {
+          content: ':';
+        }
+        input {
+          flex-shrink: 1.5;
+        }
+        .unit {
+          flex-shrink: 2;
+        }
+      }
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+
+      * {
+        margin: 0 $margin;
+      }
     }
   }
   .history {

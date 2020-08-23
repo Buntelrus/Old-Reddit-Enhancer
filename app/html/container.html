@@ -4,6 +4,13 @@
         <h1>Old-Reddit-Enhancer Changelog:</h1>
         <ul>
             <li>
+                <h2>Version: 0.3</h2>
+                <ul>
+                    <li>layout improvements</li>
+                    <li>show version info in config</li>
+                </ul>
+            </li>
+            <li>
                 <h2>Version: 0.2.2</h2>
                 <ul>
                     <li>fix: only track time if window is active</li>
@@ -43,18 +50,21 @@
             <div>
                 <label for="seconds-to-start-new-session">Seconds to start new session</label>
                 <input id="seconds-to-start-new-session">
-                <span>sec</span>
+                <div class="unit">sec</div>
             </div>
             <div>
                 <label for="daily-reddit-time">Daily Reddit Time</label>
                 <input id="daily-reddit-time">
-                <span>min</span>
+                <div class="unit">min</div>
             </div>
             <div>
-                <label for="show-time-alert">enable time alert</label>
+                <label for="show-time-alert">Enable time alert</label>
                 <input id="show-time-alert" type="checkbox">
+                <div class="unit"></div>
             </div>
-            <button type="submit">save</button>
+            <div>
+                <button type="submit">save</button>
+            </div>
         </form>
         <nav>
             <a href="" data-module="0">show changelog</a> |
