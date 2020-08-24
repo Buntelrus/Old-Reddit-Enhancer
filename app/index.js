@@ -5,6 +5,17 @@ import TimeTracker from './TimeTracker'
 import update from './functions/update'
 import Container from './html/container.html'
 
+function addClickListenerToModuleLink(element) {
+  const moduleLinks = Array.from(element.querySelectorAll('a[data-module]'))
+  moduleLinks.forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault()
+      const moduleIndex = parseInt(event.currentTarget.dataset.module)
+      modules[moduleIndex].show()
+    })
+  })
+}
+
 //insert container html
 document.body.insertAdjacentHTML('afterbegin', Container)
 const container = document.body.children[0]
@@ -31,14 +42,18 @@ modules.forEach(module => {
 })
 
 //open proper modules
-const moduleLinks = Array.from(container.querySelectorAll('a[data-module]'))
-moduleLinks.forEach(link => {
-  link.addEventListener('click', event => {
-    event.preventDefault()
-    const moduleIndex = parseInt(event.currentTarget.dataset.module)
-    modules[moduleIndex].show()
-  })
-})
+addClickListenerToModuleLink(container)
+
+const toast = document.querySelector('.ore-notification-container > .toast')
+toast.addEventListener('click', () => toast.classList.remove('show'))
+function showToast(heading, message) {
+  toast.querySelector('.toast-header').innerText = heading
+  const body =  toast.querySelector('.toast-body')
+  body.innerHTML = message
+  addClickListenerToModuleLink(body)
+  toast.classList.add('show')
+  setTimeout(() => toast.classList.remove('show'), 10000)
+}
 
 update(config, modules[0])
 
@@ -46,7 +61,11 @@ const timeTracker = window.TimeTracker = new TimeTracker(config)
 if (config.showTimeAlert) {
   timeTracker.dailyRedditTimeExhausted().then(time => {
     const minutesSpentOnReddit = time / 1000 / 60
-    alert(`genug reddit für heute! dailyRedditTime: ${config.dailyRedditTime}min, time spent: ${Math.round(minutesSpentOnReddit)}min`)
+    showToast(
+      'Enough Reddit for today!',
+      `dailyRedditTime: ${config.dailyRedditTime}min, spent: ${Math.round(minutesSpentOnReddit)}min` +
+              '<br><a href="" data-module="1">configure</a>'
+    )
   })
 }
 
@@ -132,5 +151,3 @@ comments.forEach(comment => {
   })
   comment.append(threadLine)
 })
-
-modules[1].show()

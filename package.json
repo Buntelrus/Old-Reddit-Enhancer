@@ -20,6 +20,7 @@
   },
   "homepage": "https://buntel.de",
   "devDependencies": {
+    "bootstrap": "^4.5.2",
     "css-loader": "^2.1.1",
     "html-loader": "^0.5.5",
     "node-sass": "^4.12.0",
