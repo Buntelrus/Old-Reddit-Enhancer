@@ -44,9 +44,12 @@ modules.forEach(module => {
 //open proper modules
 addClickListenerToModuleLink(container)
 
+const audio = document.createElement('audio')
+audio.src = 'https://notificationsounds.com/notification-sounds/clearly-602/download/mp3'
 const toast = document.querySelector('.ore-notification-container > .toast')
 toast.addEventListener('click', () => toast.classList.remove('show'))
 function showToast(heading, message) {
+  audio.play()
   toast.querySelector('.toast-header').innerText = heading
   const body =  toast.querySelector('.toast-body')
   body.innerHTML = message
