@@ -7,7 +7,8 @@ class Config {
         const defaultValues = {
           secondsToStartNewSession: 30,
           dailyRedditTime: 60,
-          showTimeAlert: true
+          showTimeAlert: true,
+          showTimeAlertTime: 10
         }
         if (Object.keys(defaultValues).includes(prop.toString()) && !target.hasOwnProperty(prop)) {
           return defaultValues[prop]

@@ -52,7 +52,7 @@ function showToast(heading, message) {
   body.innerHTML = message
   addClickListenerToModuleLink(body)
   toast.classList.add('show')
-  setTimeout(() => toast.classList.remove('show'), 10000)
+  setTimeout(() => toast.classList.remove('show'), config.showTimeAlertTime * 1000)
 }
 
 update(config, modules[0])
