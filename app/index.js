@@ -102,6 +102,7 @@ form.addEventListener('submit', event => {
   config.save()
   modules[1].show(false) //close config
 })
+document.getElementById('ore-version').innerText = VERSION
 
 //history
 const history = modules[2]
