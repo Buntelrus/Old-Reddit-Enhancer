@@ -20,6 +20,8 @@
   background-color: rgba(0, 0, 0, 0.4);
 
   .close {
+    position: sticky;
+    top: 0;
     color: $color-dark;
     float: right;
     font-size: 1.3rem;
@@ -104,6 +106,23 @@
       span {
         margin-right: 1.5rem;
       }
+    }
+  }
+  .scrollbox {
+    $scrollbar-width: 4px;
+    max-height: 550px;
+    overflow: auto;
+
+    //this is for firefox
+    scrollbar-width: thin;
+    scrollbar-color: $color-dark $color;
+
+    &::-webkit-scrollbar {
+      width: $scrollbar-width;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: $color-dark;
+      border-radius: $scrollbar-width / 2;
     }
   }
 }
