@@ -139,7 +139,7 @@ export default class TimeTracker {
       return `${timestring}${minutes % 60}min`
     }
     if (historyList.childNodes.length) {
-      historyList.childNodes.forEach(child => child.remove())
+      Array.from(historyList.childNodes).forEach(child => child.remove())
     }
     this.db.then(async db => {
       let cursor = await db.transaction('sessions').store.index('end').openCursor(undefined, 'prev')
@@ -155,7 +155,6 @@ export default class TimeTracker {
         cursor = await cursor.continue()
       }
 
-      console.log(sortedByDate)
       for (let date in sortedByDate) {
         const li = document.createElement('li')
         const h2 = document.createElement('h2')
