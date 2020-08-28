@@ -24,3 +24,7 @@ $toast-header-color: #03071e;
 
 //@import "node_modules/bootstrap/scss/buttons";
 @import "node_modules/bootstrap/scss/toasts";
+
+.toast {
+  display: none;
+}
