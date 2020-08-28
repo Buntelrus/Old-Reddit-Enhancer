@@ -126,6 +126,7 @@ export default class TimeTracker {
       })
     })
   }
+
   showHistory(historyList) {
     const locale = 'DE-de'
     const timestampToHr = timestamp => {
@@ -140,48 +141,52 @@ export default class TimeTracker {
     if (historyList.childNodes.length) {
       historyList.childNodes.forEach(child => child.remove())
     }
-    this.db.then(db => {
-      db.getAllFromIndex('sessions', 'end').then(sessions => {
-        const sortedByDate = sessions.reduce((object, session) => {
-          const date = new Intl.DateTimeFormat(locale).format(session.start)
-          if (!object[date]) {
-            object[date] = []
-          }
-          object[date].push(session)
-          return object
-        }, {})
-        for (let date in sortedByDate) {
-          const li = document.createElement('li')
-          const h2 = document.createElement('h2')
-          const ul = document.createElement('ul')
-          let accumulatedDayTime = 0
-          sortedByDate[date].forEach(session => {
-            const li = document.createElement('li')
-            const dateTimeFormat = new Intl.DateTimeFormat(locale, {hour: 'numeric', minute: 'numeric'})
-            const spentTime = session.end - session.start
-            accumulatedDayTime += spentTime
-            const text = [
-              '<span>',
-              dateTimeFormat.format(session.start),
-              'Uhr',
-              '-',
-              dateTimeFormat.format(session.end),
-              'Uhr',
-              '</span>',
-              '<span>',
-              'Duration:',
-              timestampToHr(spentTime),
-              '</span>'
-            ]
-            li.innerHTML = text.join(' ')
-            ul.append(li)
-          })
-          h2.innerText = `${date} (${timestampToHr(accumulatedDayTime)})`
-          li.append(h2)
-          li.append(ul)
-          historyList.append(li)
+    this.db.then(async db => {
+      let cursor = await db.transaction('sessions').store.index('end').openCursor(undefined, 'prev')
+      let sortedByDate = {}
+      while (cursor) {
+        let session = cursor.value
+        let date = new Intl.DateTimeFormat(locale).format(session.start)
+        if (!sortedByDate[date]) {
+          sortedByDate[date] = []
         }
-      })
+        sortedByDate[date].push(session)
+
+        cursor = await cursor.continue()
+      }
+
+      console.log(sortedByDate)
+      for (let date in sortedByDate) {
+        const li = document.createElement('li')
+        const h2 = document.createElement('h2')
+        const ul = document.createElement('ul')
+        let accumulatedDayTime = 0
+        sortedByDate[date].forEach(session => {
+          const li = document.createElement('li')
+          const dateTimeFormat = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: 'numeric' })
+          const spentTime = session.end - session.start
+          accumulatedDayTime += spentTime
+          const text = [
+            '<span>',
+            dateTimeFormat.format(session.start),
+            'Uhr',
+            '-',
+            dateTimeFormat.format(session.end),
+            'Uhr',
+            '</span>',
+            '<span>',
+            'Duration:',
+            timestampToHr(spentTime),
+            '</span>',
+          ]
+          li.innerHTML = text.join(' ')
+          ul.append(li)
+        })
+        h2.innerText = `${date} (${timestampToHr(accumulatedDayTime)})`
+        li.append(h2)
+        li.append(ul)
+        historyList.append(li)
+      }
     })
   }
 }
