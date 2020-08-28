@@ -21,7 +21,7 @@ function db() {
 
 export default class TimeTracker {
   get currentSessionTime() {
-    return new Date() - this.session.start
+    return this.idle? 0: new Date() - this.session.start
   }
   get accumulatedDayTime() {
     return new Promise(resolve => {
@@ -32,7 +32,7 @@ export default class TimeTracker {
           IDBKeyRange.lowerBound(oneDayAgo)).then(sessions => {
           const accumulatedTime = sessions.reduce((time, session, i) => {
             let timeSpent
-            if (i === sessions.length - 1) {
+            if (!this.idle && i === sessions.length - 1) {
               timeSpent = this.currentSessionTime
             } else {
               let startTime
@@ -55,12 +55,17 @@ export default class TimeTracker {
     this.CONFIG = config
     this.db = db()
     this.session = TimeTracker.getSessionFromLocalStorage()
+    this.idle = false
     this.saveSession()
-    window.addEventListener('beforeunload', this.saveSessionToLocalStorage.bind(this))
-    window.addEventListener('focus', () => this.track(new Date()))
+    window.addEventListener('beforeunload', () => this.saveSessionToLocalStorage())
+    window.addEventListener('focus', () => {
+      this.idle = false
+      this.track(new Date())
+    })
     window.addEventListener('blur', () => {
       this.session.end = new Date()
       this.saveSession()
+      this.idle = true
     })
     this.track(time)
   }
@@ -83,7 +88,9 @@ export default class TimeTracker {
    * this is a synchronous operation an can be securely done if browser window closes.
    */
   saveSessionToLocalStorage() {
-    this.session.end = new Date()
+    if (!this.idle) {
+      this.session.end = new Date()
+    }
     localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(this.session))
   }
   dailyRedditTimeExhausted() {
@@ -94,7 +101,9 @@ export default class TimeTracker {
         return new Promise(resolve => {
           const dailyRedditTimeSec = this.CONFIG.dailyRedditTime * 1000 * 60
           setTimeout(() => {
-            resolve(dailyRedditTimeSec)
+            this.dailyRedditTimeExhausted().then(time => {
+              resolve(time)
+            })
           }, dailyRedditTimeSec - time)
         })
       }
