@@ -25,19 +25,19 @@ export default class TimeTracker {
   }
   get accumulatedDayTime() {
     return new Promise(resolve => {
-      const oneDayAgo = new Date()
-      oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+      const dayBegin = new Date()
+      dayBegin.setHours(0, 0, 0, 0)
       this.db.then(db => {
         db.getAllFromIndex('sessions', 'end',
-          IDBKeyRange.lowerBound(oneDayAgo)).then(sessions => {
+          IDBKeyRange.lowerBound(dayBegin)).then(sessions => {
           const accumulatedTime = sessions.reduce((time, session, i) => {
             let timeSpent
             if (!this.idle && i === sessions.length - 1) {
               timeSpent = this.currentSessionTime
             } else {
               let startTime
-              if (session.start < oneDayAgo) {
-                startTime = oneDayAgo
+              if (session.start < dayBegin) {
+                startTime = dayBegin
               } else {
                 startTime = session.start
               }
